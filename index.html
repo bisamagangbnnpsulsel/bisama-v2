@@ -2,377 +2,266 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>BISAMA V2</title>
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 viewport-fit=cover">
+
+  <meta name="theme-color" content="#0f3b82">
+
+  <title>BISAMA V2 - Sistem Informasi Magang</title>
 
   <style>
     * {
       box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
+      overflow: hidden;
+      background: #f8fafc;
     }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f9ff;
-      color: #222;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,.08);
-      margin-bottom: 20px;
-    }
-
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background: #1976d2;
-      color: white;
-    }
-
-    .btn-danger {
-      background: #d32f2f;
-      color: white;
-    }
-
-    video {
+    #bisamaFrame {
       width: 100%;
-      max-width: 500px;
-      border-radius: 10px;
-      background: #000;
+      height: 100vh;
+      height: 100dvh;
+      border: 0;
       display: block;
-      margin: 15px auto;
+      background: #ffffff;
     }
 
-    #cameraArea {
+    #loadingScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+      font-family: Arial, sans-serif;
+      color: #172554;
+    }
+
+    .logo {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      background: #0f3b82;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 8px 25px rgba(15, 59, 130, 0.20);
+    }
+
+    .loading-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .loading-text {
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #dbeafe;
+      border-top-color: #0f3b82;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error {
       display: none;
+      max-width: 500px;
+      margin: 20px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #fecaca;
+      font-family: Arial, sans-serif;
+      color: #7f1d1d;
       text-align: center;
     }
 
-    #previewFoto {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 10px;
-      display: none;
-      margin: 15px auto;
-    }
-
-    .status {
-      margin-top: 10px;
-      padding: 10px;
+    .error button {
+      margin-top: 12px;
+      border: 0;
       border-radius: 8px;
-      background: #eef5ff;
+      padding: 9px 15px;
+      background: #0f3b82;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
 
-<div class="container">
+  <div id="loadingScreen">
 
-  <div class="card">
-    <h2>Presensi Harian</h2>
-
-    <p id="statusCamera" class="status">
-      Kamera belum diaktifkan.
-    </p>
-
-    <div id="cameraArea">
-
-      <video id="videoCamera"
-             autoplay
-             playsinline>
-      </video>
-
-      <button class="btn-primary"
-              onclick="ambilFoto()">
-        Ambil Foto Live
-      </button>
-
-      <button class="btn-danger"
-              onclick="tutupKamera()">
-        Tutup Kamera
-      </button>
-
+    <div class="logo">
+      B
     </div>
 
-    <button id="btnAktifKamera"
-            class="btn-primary"
-            onclick="aktifkanKamera()">
-      Aktifkan Kamera
-    </button>
+    <div class="loading-title">
+      BISAMA V2
+    </div>
 
-    <canvas id="canvasFoto" style="display:none;"></canvas>
+    <div class="spinner"></div>
 
-    <img id="previewFoto"
-         alt="Preview foto presensi">
-
-    <button class="btn-primary"
-            onclick="kirimPresensi()">
-      Kirim Presensi
-    </button>
+    <div class="loading-text">
+      Memuat Sistem Informasi Magang...
+    </div>
 
   </div>
 
-</div>
+  <div id="errorBox" class="error">
+    <strong>BISAMA tidak dapat dimuat.</strong>
 
-<script>
+    <p>
+      Periksa koneksi internet atau pastikan URL
+      Google Apps Script Web App sudah benar.
+    </p>
 
-/* =========================================================
-   URL WEB APP GOOGLE APPS SCRIPT
-   GANTI DENGAN URL WEB APP MILIKMU
-========================================================= */
+    <button onclick="location.reload()">
+      Muat Ulang
+    </button>
+  </div>
 
-const APPS_SCRIPT_URL =
-  "PASTE_URL_WEB_APP_APPS_SCRIPT_DI_SINI";
+  <!--
+    ==========================================================
+    URL GOOGLE APPS SCRIPT WEB APP
+    ==========================================================
+
+    GANTI URL DI BAWAH DENGAN URL DEPLOYMENT APPS SCRIPT KAMU.
+
+    Contoh:
+    https://script.google.com/macros/s/XXXXXXXXXXXX/exec
+  -->
+
+  <iframe
+    id="bisamaFrame"
+    title="BISAMA V2"
+    allow="camera; microphone; geolocation"
+    allowfullscreen>
+  </iframe>
 
 
-/* =========================================================
-   VARIABEL KAMERA
-========================================================= */
+  <script>
 
-let cameraStream = null;
-let fotoBase64 = "";
+    /*
+     * ========================================================
+     * URL BACKEND / WEB APP BISAMA
+     * ========================================================
+     *
+     * Masukkan URL:
+     * Google Apps Script
+     * → Deploy
+     * → New deployment
+     * → Web app
+     * → URL yang berakhiran /exec
+     */
+
+    const APPS_SCRIPT_URL =
+      "https://script.google.com/macros/s/AKfycbxtX6JK_TcesuwqxLW7y4EBsSXW-idUD6wbDsNeq97dKYhoJdegF6qVJjgU12ja1wpxMg/exec";
 
 
-/* =========================================================
-   AKTIFKAN KAMERA
-========================================================= */
+    const frame = document.getElementById("bisamaFrame");
+    const loading = document.getElementById("loadingScreen");
+    const errorBox = document.getElementById("errorBox");
 
-async function aktifkanKamera() {
 
-  try {
+    /*
+     * Validasi URL sebelum iframe dijalankan
+     */
+    function validUrl(url) {
 
-    if (!window.isSecureContext) {
-
-      alert(
-        "Kamera hanya dapat digunakan melalui HTTPS. " +
-        "Pastikan website dibuka melalui GitHub Pages."
+      return (
+        url &&
+        url !== "MASUKKAN_URL_WEB_APP_APPS_SCRIPT_DISINI" &&
+        /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/i.test(url)
       );
 
-      return;
     }
 
-    cameraStream =
-      await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: {
-            ideal: "environment"
-          },
-          width: {
-            ideal: 1280
-          },
-          height: {
-            ideal: 720
-          }
-        },
-        audio: false
-      });
 
-    const video =
-      document.getElementById("videoCamera");
+    /*
+     * Memuat BISAMA
+     */
+    function loadBisama() {
 
-    video.srcObject = cameraStream;
+      if (!validUrl(APPS_SCRIPT_URL)) {
 
-    await video.play();
+        loading.style.display = "none";
+        frame.style.display = "none";
+        errorBox.style.display = "block";
 
-    document.getElementById("cameraArea")
-      .style.display = "block";
+        return;
 
-    document.getElementById("btnAktifKamera")
-      .style.display = "none";
-
-    document.getElementById("statusCamera")
-      .textContent = "Kamera aktif.";
-
-  }
-
-  catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Kamera tidak dapat diaktifkan.\n\n" +
-      "Pastikan izin kamera sudah diberikan."
-    );
-
-  }
-}
-
-
-/* =========================================================
-   AMBIL FOTO LIVE
-========================================================= */
-
-function ambilFoto() {
-
-  const video =
-    document.getElementById("videoCamera");
-
-  const canvas =
-    document.getElementById("canvasFoto");
-
-  const preview =
-    document.getElementById("previewFoto");
-
-  if (!video.videoWidth) {
-
-    alert("Kamera belum siap.");
-
-    return;
-  }
-
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  const ctx =
-    canvas.getContext("2d");
-
-  ctx.drawImage(
-    video,
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  fotoBase64 =
-    canvas.toDataURL(
-      "image/jpeg",
-      0.82
-    );
-
-  preview.src = fotoBase64;
-  preview.style.display = "block";
-
-  document.getElementById("statusCamera")
-    .textContent = "Foto berhasil diambil.";
-
-}
-
-
-/* =========================================================
-   TUTUP KAMERA
-========================================================= */
-
-function tutupKamera() {
-
-  if (cameraStream) {
-
-    cameraStream
-      .getTracks()
-      .forEach(track => track.stop());
-
-    cameraStream = null;
-  }
-
-  document.getElementById("videoCamera")
-    .srcObject = null;
-
-  document.getElementById("cameraArea")
-    .style.display = "none";
-
-  document.getElementById("btnAktifKamera")
-    .style.display = "inline-block";
-
-  document.getElementById("statusCamera")
-    .textContent = "Kamera ditutup.";
-
-}
-
-
-/* =========================================================
-   KIRIM DATA KE GOOGLE APPS SCRIPT
-========================================================= */
-
-async function kirimPresensi() {
-
-  if (!fotoBase64) {
-
-    alert("Silakan ambil foto live terlebih dahulu.");
-
-    return;
-  }
-
-  try {
-
-    const payload = {
-
-      foto: {
-        name: "presensi-live.jpg",
-        mimeType: "image/jpeg",
-        base64:
-          fotoBase64.split(",")[1]
       }
 
-      // DATA PRESENSI LAIN
-      // ditambahkan sesuai payload BISAMA-mu
-    };
-
-
-    const response =
-      await fetch(APPS_SCRIPT_URL, {
-
-        method: "POST",
-
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-
-        body: JSON.stringify({
-          action: "submitParticipantAttendance",
-          data: payload
-        })
-
-      });
-
-
-    const result =
-      await response.json();
-
-
-    if (result.success) {
-
-      alert("Presensi berhasil dikirim.");
-
-    } else {
-
-      alert(
-        result.message ||
-        "Presensi gagal dikirim."
-      );
+      frame.src = APPS_SCRIPT_URL;
 
     }
 
-  }
 
-  catch (error) {
+    /*
+     * Ketika halaman BISAMA selesai dimuat
+     */
+    frame.addEventListener("load", function () {
 
-    console.error(error);
+      setTimeout(function () {
 
-    alert(
-      "Gagal terhubung ke server Apps Script."
-    );
+        loading.style.display = "none";
+        frame.style.display = "block";
 
-  }
-}
+      }, 400);
 
-</script>
+    });
+
+
+    /*
+     * Jika iframe gagal dimuat
+     */
+    frame.addEventListener("error", function () {
+
+      loading.style.display = "none";
+      frame.style.display = "none";
+      errorBox.style.display = "block";
+
+    });
+
+
+    /*
+     * Jalankan
+     */
+    loadBisama();
+
+  </script>
 
 </body>
 </html>
