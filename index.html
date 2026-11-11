@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>BISAMA V2</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f9ff;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.08);
+      margin-bottom: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #d32f2f;
+      color: white;
+    }
+
+    video {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      background: #000;
+      display: block;
+      margin: 15px auto;
+    }
+
+    #cameraArea {
+      display: none;
+      text-align: center;
+    }
+
+    #previewFoto {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      display: none;
+      margin: 15px auto;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #eef5ff;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Presensi Harian</h2>
+
+    <p id="statusCamera" class="status">
+      Kamera belum diaktifkan.
+    </p>
+
+    <div id="cameraArea">
+
+      <video id="videoCamera"
+             autoplay
+             playsinline>
+      </video>
+
+      <button class="btn-primary"
+              onclick="ambilFoto()">
+        Ambil Foto Live
+      </button>
+
+      <button class="btn-danger"
+              onclick="tutupKamera()">
+        Tutup Kamera
+      </button>
+
+    </div>
+
+    <button id="btnAktifKamera"
+            class="btn-primary"
+            onclick="aktifkanKamera()">
+      Aktifkan Kamera
+    </button>
+
+    <canvas id="canvasFoto" style="display:none;"></canvas>
+
+    <img id="previewFoto"
+         alt="Preview foto presensi">
+
+    <button class="btn-primary"
+            onclick="kirimPresensi()">
+      Kirim Presensi
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   URL WEB APP GOOGLE APPS SCRIPT
+   GANTI DENGAN URL WEB APP MILIKMU
+========================================================= */
+
+const APPS_SCRIPT_URL =
+  "PASTE_URL_WEB_APP_APPS_SCRIPT_DI_SINI";
+
+
+/* =========================================================
+   VARIABEL KAMERA
+========================================================= */
+
+let cameraStream = null;
+let fotoBase64 = "";
+
+
+/* =========================================================
+   AKTIFKAN KAMERA
+========================================================= */
+
+async function aktifkanKamera() {
+
+  try {
+
+    if (!window.isSecureContext) {
+
+      alert(
+        "Kamera hanya dapat digunakan melalui HTTPS. " +
+        "Pastikan website dibuka melalui GitHub Pages."
+      );
+
+      return;
+    }
+
+    cameraStream =
+      await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: {
+            ideal: "environment"
+          },
+          width: {
+            ideal: 1280
+          },
+          height: {
+            ideal: 720
+          }
+        },
+        audio: false
+      });
+
+    const video =
+      document.getElementById("videoCamera");
+
+    video.srcObject = cameraStream;
+
+    await video.play();
+
+    document.getElementById("cameraArea")
+      .style.display = "block";
+
+    document.getElementById("btnAktifKamera")
+      .style.display = "none";
+
+    document.getElementById("statusCamera")
+      .textContent = "Kamera aktif.";
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Kamera tidak dapat diaktifkan.\n\n" +
+      "Pastikan izin kamera sudah diberikan."
+    );
+
+  }
+}
+
+
+/* =========================================================
+   AMBIL FOTO LIVE
+========================================================= */
+
+function ambilFoto() {
+
+  const video =
+    document.getElementById("videoCamera");
+
+  const canvas =
+    document.getElementById("canvasFoto");
+
+  const preview =
+    document.getElementById("previewFoto");
+
+  if (!video.videoWidth) {
+
+    alert("Kamera belum siap.");
+
+    return;
+  }
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  fotoBase64 =
+    canvas.toDataURL(
+      "image/jpeg",
+      0.82
+    );
+
+  preview.src = fotoBase64;
+  preview.style.display = "block";
+
+  document.getElementById("statusCamera")
+    .textContent = "Foto berhasil diambil.";
+
+}
+
+
+/* =========================================================
+   TUTUP KAMERA
+========================================================= */
+
+function tutupKamera() {
+
+  if (cameraStream) {
+
+    cameraStream
+      .getTracks()
+      .forEach(track => track.stop());
+
+    cameraStream = null;
+  }
+
+  document.getElementById("videoCamera")
+    .srcObject = null;
+
+  document.getElementById("cameraArea")
+    .style.display = "none";
+
+  document.getElementById("btnAktifKamera")
+    .style.display = "inline-block";
+
+  document.getElementById("statusCamera")
+    .textContent = "Kamera ditutup.";
+
+}
+
+
+/* =========================================================
+   KIRIM DATA KE GOOGLE APPS SCRIPT
+========================================================= */
+
+async function kirimPresensi() {
+
+  if (!fotoBase64) {
+
+    alert("Silakan ambil foto live terlebih dahulu.");
+
+    return;
+  }
+
+  try {
+
+    const payload = {
+
+      foto: {
+        name: "presensi-live.jpg",
+        mimeType: "image/jpeg",
+        base64:
+          fotoBase64.split(",")[1]
+      }
+
+      // DATA PRESENSI LAIN
+      // ditambahkan sesuai payload BISAMA-mu
+    };
+
+
+    const response =
+      await fetch(APPS_SCRIPT_URL, {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+
+        body: JSON.stringify({
+          action: "submitParticipantAttendance",
+          data: payload
+        })
+
+      });
+
+
+    const result =
+      await response.json();
+
+
+    if (result.success) {
+
+      alert("Presensi berhasil dikirim.");
+
+    } else {
+
+      alert(
+        result.message ||
+        "Presensi gagal dikirim."
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Gagal terhubung ke server Apps Script."
+    );
+
+  }
+}
+
+</script>
+
+</body>
+</html>
